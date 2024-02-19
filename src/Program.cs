@@ -23,13 +23,13 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHangfireDashboard();
-app.MapHangfireDashboard();
+app.UseHttpsRedirection();
 
 app.UseAuthorization();
 
 app.MapControllers();
 
 app.UseHangfireDashboard();
+app.MapHangfireDashboard();
 
 app.Run();
