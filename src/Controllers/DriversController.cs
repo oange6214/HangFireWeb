@@ -1,5 +1,7 @@
+using Hangfire;
 using Microsoft.AspNetCore.Mvc;
 using src.Models;
+using src.Services;
 
 namespace HangFireApp.Controllers;
 
@@ -21,6 +23,8 @@ public class DriversController : ControllerBase
         if (ModelState.IsValid)
         {
             drivers.Add(driver);
+
+            var jobId = BackgroundJob.Enqueue<IServiceManagement>(x => x.SendEmail());
 
             return CreatedAtAction(nameof(GetDriver), new { driver.Id }, driver);
         }
@@ -46,6 +50,10 @@ public class DriversController : ControllerBase
 
         if (driver is null)
             return NotFound();
+
+        driver.Status = 0;
+
+        RecurringJob.AddOrUpdate<IServiceManagement>(x => x.UpdateDatabase(), Cron.Minutely);
         
         return NoContent();
     }
