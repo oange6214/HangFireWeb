@@ -24,6 +24,7 @@ public class DriversController : ControllerBase
         {
             drivers.Add(driver);
 
+            // Enqueue a background job to send email
             var jobId = BackgroundJob.Enqueue<IServiceManagement>(x => x.SendEmail());
 
             return CreatedAtAction(nameof(GetDriver), new { driver.Id }, driver);
@@ -53,7 +54,8 @@ public class DriversController : ControllerBase
 
         driver.Status = 0;
 
-        RecurringJob.AddOrUpdate<IServiceManagement>(x => x.UpdateDatabase(), Cron.Minutely);
+        // Add or update a recurring job to update database every minute
+        RecurringJob.AddOrUpdate<IServiceManagement>(Guid.NewGuid().ToString(), x => x.UpdateDatabase(), Cron.Minutely);
         
         return NoContent();
     }
